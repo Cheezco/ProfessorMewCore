@@ -12,6 +12,7 @@ namespace ProfessorMewData.Extensions.Guild
             if(((long)user.Tickets + ticketAmount) > int.MaxValue)
             {
                 user.Tickets = int.MaxValue;
+                return;
             }
 
             user.Tickets += Math.Abs(ticketAmount);
@@ -19,9 +20,10 @@ namespace ProfessorMewData.Extensions.Guild
 
         public static void ReduceTickets(this ILotteryUser user, int ticketAmount)
         {
-            if (((long)user.Tickets + ticketAmount) > int.MaxValue)
+            if (((long)user.Tickets - ticketAmount) < int.MinValue)
             {
                 user.Tickets = int.MinValue;
+                return;
             }
 
             user.Tickets = user.Tickets - Math.Abs(ticketAmount) < 0 ? 0 : user.Tickets - Math.Abs(ticketAmount);
