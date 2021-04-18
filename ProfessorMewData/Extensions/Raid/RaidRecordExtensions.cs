@@ -73,6 +73,7 @@ namespace ProfessorMewData.Extensions.Raid
             if(benches is null || benches.Count == 0)
             {
                 record.Status = BenchStatus.Unkown;
+                return;
             }
 
             var bench = benches.FirstOrDefault(x => x.Class == record.Class &&
