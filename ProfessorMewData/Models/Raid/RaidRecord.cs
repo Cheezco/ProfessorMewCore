@@ -25,8 +25,6 @@ namespace ProfessorMewData.Models.Raid
 
         public double BoonUptime { get; set; }
 
-        public string Status { get; set; }
-
         BenchStatus IRaidRecord.Status { get; set; }
     }
 }

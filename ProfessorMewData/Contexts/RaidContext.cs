@@ -53,8 +53,6 @@ namespace ProfessorMewData.Contexts
                 entity.Property(e => e.BoonUptime)
                     .IsRequired();
 
-                entity.Ignore(e => e.Status);
-
                 entity.HasOne(r => (RaidUser)r.User)
                     .WithMany(r => (List<RaidRecord>)r.Records)
                     .OnDelete(DeleteBehavior.Cascade)
