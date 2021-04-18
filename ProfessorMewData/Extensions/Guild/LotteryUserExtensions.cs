@@ -23,7 +23,8 @@ namespace ProfessorMewData.Extensions.Guild
             {
                 user.Tickets = int.MinValue;
             }
-            user.Tickets -= Math.Abs(ticketAmount);
+
+            user.Tickets = user.Tickets - Math.Abs(ticketAmount) < 0 ? 0 : user.Tickets - Math.Abs(ticketAmount);
         }
     }
 }
