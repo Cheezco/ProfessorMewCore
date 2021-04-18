@@ -24,6 +24,12 @@ namespace ProfessorMewCore.Modules.Lottery
             Prizes = prizes is null ? new List<string>() : prizes;
         }
 
+        /// <summary>
+        /// Randomly gets <see cref="ILotteryUser"/> from <see cref="Users"/> list
+        /// </summary>
+        /// <param name="removeWinner">If <c>true</c> user will be removed from <c>Users</c> list</param>
+        /// <returns>Randomly found <see cref="ILotteryUser"/></returns>
+        /// <exception cref="ProfessorMewData.Exceptions.Guild.ProfessorMewException">Thrown when either <see cref="Users"/> or <see cref="Prizes"/> is empty</exception>
         public ILotteryUser GetWinner(bool removeWinner = false)
         {
             if(!CanGetWinner)
@@ -57,6 +63,13 @@ namespace ProfessorMewCore.Modules.Lottery
             return winner;
         }
 
+        /// <summary>
+        /// Randomly gets <see cref="ILotteryUser">ILotteryUsers</see> from <see cref="Users"/> list
+        /// </summary>
+        /// <param name="count">Count of <see cref="ILotteryUser">ILotteryUsers</see> that will be returned</param>
+        /// <param name="removeWinner">If <c>true</c> user will be removed from <c>Users</c> list</param>
+        /// <returns>List of randomly found <see cref="ILotteryUser">ILotteryUsers</see></returns>
+        /// <exception cref="ProfessorMewData.Exceptions.Guild.ProfessorMewException">Thrown when either <see cref="Users"/> or <see cref="Prizes"/> is empty</exception>
         public List<ILotteryUser> GetWinners(int count, bool removeWinner = false)
         {
             if(!CanGetWinner)
