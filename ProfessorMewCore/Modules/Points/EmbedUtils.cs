@@ -55,6 +55,8 @@ namespace ProfessorMewCore.Modules.Points
                 .AddField("Total points", user.TotalPoints)
                 .AddField("Month points", user.MonthPoints)
                 .AddField("Last time points added", user.LastUpdate)
+                .AddField("Point display", user.PointDisplay)
+                .AddField("Privileges", user.Privileges)
                 .Build();
         }
 
