@@ -41,6 +41,12 @@ namespace ProfessorMewCore.Modules.Lottery
                     .ThenInclude(x => x.User)
                     .SingleOrDefaultAsync(x => x.DBDiscordID == Context.Guild.Id.ToString());
 
+                if(guild is null)
+                {
+                    await ReplyAsync("Guild not found.");
+                    return;
+                }
+
                 var users = guild.LotteryUsers.ToList();
                 var savedChannel = guild.GetChannel("Lottery");
                 var channel = Context.Guild.GetTextChannel(savedChannel.DiscordID);
@@ -67,15 +73,15 @@ namespace ProfessorMewCore.Modules.Lottery
             {
                 await context.Database.EnsureCreatedAsync();
 
-                var guild = await context.Guilds
-                    .Include(x => x.LotteryUsers)
-                    .SingleOrDefaultAsync(x => x.DBDiscordID == guildUser.Id.ToString());
-                if(guild is null)
+                var user = await context.LotteryUsers
+                    .Include(x => x.User)
+                    .SingleOrDefaultAsync(x => x.DBDiscordID == guildUser.Id.ToString() && x.Guild.DBDiscordID == Context.Guild.Id.ToString());
+
+                if(user is null)
                 {
-                    await ReplyAsync("Error");
+                    await ReplyAsync("User not found.");
                     return;
                 }
-                var user = guild.GetLotteryUser(guildUser.Id);
 
                 user.AddTickets(tickets);
                 await context.SaveChangesAsync();
@@ -94,15 +100,15 @@ namespace ProfessorMewCore.Modules.Lottery
             {
                 await context.Database.EnsureCreatedAsync();
 
-                var guild = await context.Guilds
-                    .Include(x => x.LotteryUsers)
-                    .SingleOrDefaultAsync(x => x.DBDiscordID == guildUser.Id.ToString());
-                if (guild is null)
+                var user = await context.LotteryUsers
+                    .Include(x => x.User)
+                    .SingleOrDefaultAsync(x => x.DBDiscordID == guildUser.Id.ToString() && x.Guild.DBDiscordID == Context.Guild.Id.ToString());
+
+                if (user is null)
                 {
-                    await ReplyAsync("Error");
+                    await ReplyAsync("User not found.");
                     return;
                 }
-                var user = guild.GetLotteryUser(guildUser.Id);
 
                 user.ReduceTickets(tickets);
                 await context.SaveChangesAsync();
@@ -122,7 +128,6 @@ namespace ProfessorMewCore.Modules.Lottery
                 await context.Database.EnsureCreatedAsync();
 
                 var guild = await context.Guilds
-                    .Include(x => x.LotteryUsers)
                     .Include(x => x.Messages)
                     .Include(x => x.Channels)
                     .SingleOrDefaultAsync(x => x.DBDiscordID == Context.Guild.Id.ToString());
@@ -130,9 +135,9 @@ namespace ProfessorMewCore.Modules.Lottery
                 var savedMessage = guild.GetMessage("LotteryMessage");
 
                 var channel = Context.Guild.GetTextChannel(savedChannel.DiscordID);
-                var message = await channel?.GetMessageAsync(savedMessage.DiscordID);
-                await message?.DeleteAsync();
+                await Misc.DiscordUtils.DeleteMessageAsync(channel, savedMessage.DiscordID);
                 guild.Messages.Remove(savedMessage);
+
 
                 await context.SaveChangesAsync();
             }
