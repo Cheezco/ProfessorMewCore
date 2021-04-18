@@ -12,20 +12,23 @@ namespace ProfessorMewData.Extensions.Guild
         public static void AddPoints(this IUser user, int points, bool addToMonthly)
         {
             points = Math.Abs(points);
-            user.TotalPoints += points;
+
+            user.TotalPoints = ((long)user.TotalPoints + points) > int.MaxValue ? int.MaxValue : user.TotalPoints + points;
 
             if (!addToMonthly) return;
 
-            user.MonthPoints += points;
+            user.MonthPoints = ((long)user.MonthPoints + points) > int.MaxValue ? int.MaxValue : user.MonthPoints + points; 
         }
         public static void ReducePoints(this IUser user, int points, bool reduceMonthly)
         {
-            points = Math.Abs(points);
-            user.TotalPoints -= points;
+            points = points == int.MinValue ? int.MaxValue : Math.Abs(points);
+
+            user.TotalPoints = ((long)user.TotalPoints - points) < int.MinValue ? int.MinValue : user.TotalPoints - points;
 
             if (!reduceMonthly) return;
 
-            user.MonthPoints -= points;
+            user.MonthPoints = ((long)user.MonthPoints - points) < int.MinValue ? int.MinValue : user.MonthPoints - points;
+
         }
         public static string GetName(this IUser user, SocketCommandContext context)
         {
