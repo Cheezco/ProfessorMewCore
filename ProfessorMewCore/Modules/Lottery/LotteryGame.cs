@@ -9,29 +9,28 @@ namespace ProfessorMewCore.Modules.Lottery
     {
         public List<ILotteryUser> Users { get; private set; }
         public List<string> Prizes { get; private set; }
+        public bool CanGetWinner
+        {
+            get
+            {
+                if (Users.Count == 0 || Prizes.Count == 0) return false;
+                return true;
+            }
+        }
 
         public LotteryGame(List<ILotteryUser> users, List<string> prizes)
         {
-            if (users is null)
-            {
-                Users = new List<ILotteryUser>();
-            }
-            else
-            {
-                Users = users;
-            }
-            if (prizes is null)
-            {
-                Prizes = new List<string>();
-            }
-            else
-            {
-                Prizes = prizes;
-            }
+            Users = users is null ? new List<ILotteryUser>() : users;
+            Prizes = prizes is null ? new List<string>() : prizes;
         }
 
         public ILotteryUser GetWinner(bool removeWinner = false)
         {
+            if(!CanGetWinner)
+            {
+                throw new ProfessorMewData.Exceptions.Guild.ProfessorMewException("Cannot get winner");
+            }
+
             ILotteryUser winner = null;
             using (var cryptoRNG = new CryptoRNGCore.RandomNumberGenerator())
             {
@@ -52,7 +51,7 @@ namespace ProfessorMewCore.Modules.Lottery
 
             if (removeWinner && !winner.IsEmpty)
             {
-                Console.WriteLine(Users.Remove(winner));
+                Users.Remove(winner);
             }
 
             return winner;
@@ -60,7 +59,12 @@ namespace ProfessorMewCore.Modules.Lottery
 
         public List<ILotteryUser> GetWinners(int count, bool removeWinner = false)
         {
-            List<ILotteryUser> winners = new List<ILotteryUser>();
+            if(!CanGetWinner)
+            {
+                throw new ProfessorMewData.Exceptions.Guild.ProfessorMewException("Cannot get winners");
+            }
+
+            var winners = new List<ILotteryUser>();
             for (int i = 0; i < count; i++)
             {
                 winners.Add(GetWinner(removeWinner));
