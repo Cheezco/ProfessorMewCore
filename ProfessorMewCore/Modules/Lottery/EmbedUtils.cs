@@ -10,6 +10,11 @@ namespace ProfessorMewCore.Modules.Lottery
     {
         public static Embed CreateWinnerEmbed(List<ILotteryUser> winners, List<string> prizes, string imageUrl)
         {
+            if(winners is null || prizes is null || string.IsNullOrWhiteSpace(imageUrl))
+            {
+                throw new NullReferenceException();
+            }
+
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("The Crystal Wolves lottery")
                 .WithImageUrl(imageUrl);
@@ -24,6 +29,11 @@ namespace ProfessorMewCore.Modules.Lottery
 
         public static Embed CreateParticipantEmbed(List<ILotteryUser> users)
         {
+            if(users is null)
+            {
+                throw new NullReferenceException();
+            }
+
             int totalSum = users.Sum(user => user.Tickets);
             int nextWeeksPrize = (int)Math.Ceiling(totalSum * 0.9);
             int guildGold = (int)Math.Floor(totalSum * 0.1);
