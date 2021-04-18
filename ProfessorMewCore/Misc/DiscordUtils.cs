@@ -83,10 +83,10 @@ namespace ProfessorMewCore.Misc
         /// </summary>
         /// <param name="guilds">List of guilds that will be searched</param>
         /// <param name="discordID">Guild ID</param>
-        /// <returns><see cref="SocketGuild"/> with <paramref name="discordID"/></returns>
+        /// <returns><see cref="IGuild"/> with <paramref name="discordID"/></returns>
         /// <exception cref="NullReferenceException">Thrown when <paramref name="guilds"/> is null</exception>
         /// <exception cref="ProfessorMewData.Exceptions.Guild.ProfessorMewException">Thrown when guild is not found</exception>
-        public static SocketGuild GetGuild(IReadOnlyCollection<SocketGuild> guilds, ulong discordID)
+        public static IGuild GetGuild(IReadOnlyCollection<IGuild> guilds, ulong discordID)
         {
             if(guilds is null)
             {

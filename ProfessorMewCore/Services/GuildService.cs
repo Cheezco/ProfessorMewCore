@@ -119,7 +119,7 @@ namespace ProfessorMewCore.Services
                         });
                     var discordGuild = Misc.DiscordUtils.GetGuild(_discord.Guilds, guild.DiscordID);
                     var channel = guild.GetChannel("AdminChannel");
-                    var textChannel = discordGuild.GetTextChannel(channel.DiscordID);
+                    var textChannel = (discordGuild as SocketGuild).GetTextChannel(channel.DiscordID);
 
                     if (textChannel is null) continue;
 
