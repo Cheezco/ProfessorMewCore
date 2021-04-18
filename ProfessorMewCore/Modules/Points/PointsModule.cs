@@ -513,7 +513,7 @@ namespace ProfessorMewCore.Modules.Points
                 int ranking = 0;
                 await foreach (var entry in users)
                 {
-                    if (entry.DiscordID == Context.User.Id)
+                    if (entry.DiscordID == guildUser.Id)
                     {
                         user = entry;
                         user.GuildRanking = ranking;
