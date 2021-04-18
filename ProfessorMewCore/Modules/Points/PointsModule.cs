@@ -160,7 +160,7 @@ namespace ProfessorMewCore.Modules.Points
                     return;
                 }
                 user.AddPoints(points, addToMonthly);
-                if(user.RankedChanged())
+                if(user.RankChanged())
                 {
                     var newRank = guild.GetRank(user.TotalPoints);
                     var link = guild.GetLink("Rankup");
@@ -216,7 +216,7 @@ namespace ProfessorMewCore.Modules.Points
                     return;
                 }
                 user.ReducePoints(points, reduceMonthly);
-                if (user.RankedChanged())
+                if (user.RankChanged())
                 {
                     var newRank = guild.GetRank(user.TotalPoints);
                     var link = guild.GetLink("Rankdown");
@@ -469,7 +469,7 @@ namespace ProfessorMewCore.Modules.Points
 
                 await foreach(var user in users)
                 {
-                    if (!user.RankedChanged()) continue;
+                    if (!user.RankChanged()) continue;
 
                     var newRank = guild.GetRank(user.TotalPoints);
                     if(newRank is null)

@@ -70,7 +70,7 @@ namespace ProfessorMewData.Extensions.Guild
 
             return string.IsNullOrEmpty(imageUrl) ? _defaultAvatarUrl : imageUrl;
         }
-        public static bool RankedChanged(this IUser user)
+        public static bool RankChanged(this IUser user)
         {
             if (user.Rank.MaxPoints < user.TotalPoints || user.Rank.MinPoints > user.TotalPoints)
             {
