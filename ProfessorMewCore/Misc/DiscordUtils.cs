@@ -4,6 +4,7 @@ using ProfessorMewData.Interfaces.Guild;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace ProfessorMewCore.Misc
 {
@@ -31,7 +32,10 @@ namespace ProfessorMewCore.Misc
 
         public static async Task DeleteMessagesAsync(ITextChannel textChannel, int messageCount)
         {
-            if (textChannel is null || messageCount == 0) return;
+            if(textChannel is null)
+            {
+                throw new NullReferenceException();
+            }
 
             var messages = await textChannel.GetMessagesAsync(messageCount).FlattenAsync();
 
@@ -44,7 +48,7 @@ namespace ProfessorMewCore.Misc
         {
             if(guilds is null || guilds.Count == 0)
             {
-                return null;
+                throw new NullReferenceException();
             }
             var guild = guilds.FirstOrDefault(x => x.Id == discordID);
             if(guild is null)
