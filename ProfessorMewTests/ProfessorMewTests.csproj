@@ -20,4 +20,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ProfessorMewCore\ProfessorMewCore.csproj" />
+    <ProjectReference Include="..\ProfessorMewData\ProfessorMewData.csproj" />
+  </ItemGroup>
+
 </Project>
