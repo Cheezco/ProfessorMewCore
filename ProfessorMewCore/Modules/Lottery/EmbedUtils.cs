@@ -8,6 +8,13 @@ namespace ProfessorMewCore.Modules.Lottery
 {
     public class EmbedUtils
     {
+        /// <summary>
+        /// Creates lottery winner embed
+        /// </summary>
+        /// <param name="winners"><see cref="ILotteryUser">ILotteryUsers</see> whose information will be used</param>
+        /// <param name="prizes">Lottery prizes</param>
+        /// <param name="imageUrl">Winner embed image url</param>
+        /// <returns>Lottery winner embed</returns>
         public static Embed CreateWinnerEmbed(List<ILotteryUser> winners, List<string> prizes, string imageUrl)
         {
             if(winners is null || prizes is null || string.IsNullOrWhiteSpace(imageUrl))
@@ -26,7 +33,11 @@ namespace ProfessorMewCore.Modules.Lottery
 
             return embedBuilder.Build();
         }
-
+        /// <summary>
+        /// Creates participant embed
+        /// </summary>
+        /// <param name="users"><see cref="ILotteryUser">whose information will be used</see></param>
+        /// <returns>Lottery participant embed</returns>
         public static Embed CreateParticipantEmbed(List<ILotteryUser> users)
         {
             if(users is null)
