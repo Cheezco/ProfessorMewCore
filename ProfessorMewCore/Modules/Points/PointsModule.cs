@@ -495,6 +495,45 @@ namespace ProfessorMewCore.Modules.Points
             await ReplyAsync("Finished updating user ranks");
         }
 
+        [Command("GetP")]
+        [RequirePermission(Privileges.Admin)]
+        [RequireContext(ContextType.Guild)]
+        [LimitChannel]
+        public async Task GetPlayerAsync(IGuildUser guildUser)
+        {
+            using (var context = new GuildContext())
+            {
+                var users = context.Users
+                    .Include(x => x.Rank)
+                    .Where(x => x.Guild.DBDiscordID == Context.Guild.Id.ToString() && (x.PointDisplay != PointDisplay.HideAll || x.PointDisplay != PointDisplay.HideTotal))
+                    .OrderByDescending(x => x.TotalPoints)
+                    .AsAsyncEnumerable();
+
+                ProfessorMewData.Interfaces.Guild.IUser user = null;
+                int ranking = 0;
+                await foreach (var entry in users)
+                {
+                    if (entry.DiscordID == Context.User.Id)
+                    {
+                        user = entry;
+                        user.GuildRanking = ranking;
+                        break;
+                    }
+
+                    ranking++;
+                }
+
+                if (user is null)
+                {
+                    await ReplyAsync("User was not found in the database.");
+                    return;
+                }
+
+                var embed = EmbedUtils.CreatePlayerDataEmbed(user);
+                await ReplyAsync(embed: embed);
+            }
+        }
+
         [Command("Update", RunMode = RunMode.Async)]
         [RequirePermission(Privileges.Admin)]
         [RequireContext(ContextType.Guild)]
