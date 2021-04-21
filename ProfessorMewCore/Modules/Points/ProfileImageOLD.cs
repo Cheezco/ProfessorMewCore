@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ProfessorMewCore.Modules.Points
 {
-    class ProfileImage : IDisposable
+    class ProfileImageOLD : IDisposable
     {
         //private readonly Size avatarSize = new Size(150, 150);
 
@@ -34,7 +34,7 @@ namespace ProfessorMewCore.Modules.Points
         public string FontName;
         public List<Label> labels;
 
-        public ProfileImage(IUser plr, Bitmap background = null, string fontName = "Trench")
+        public ProfileImageOLD(IUser plr, Bitmap background = null, string fontName = "Trench")
         {
             if (background == null)
             {

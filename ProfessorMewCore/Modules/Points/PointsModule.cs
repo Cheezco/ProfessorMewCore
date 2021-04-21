@@ -11,6 +11,7 @@ using ProfessorMewData.Contexts;
 using ProfessorMewData.Models.Guild;
 using ProfessorMewData.Extensions.Guild;
 using System.Linq;
+using System.Net.Http;
 
 namespace ProfessorMewCore.Modules.Points
 {
@@ -118,12 +119,21 @@ namespace ProfessorMewCore.Modules.Points
                 }
                 user.AvatarUrl = user.GetAvatarUrl(Context);
                 user.Name = user.GetName(Context);
-                string path = PointsProfile.CreatePlayerProfile(user);
+                var profilePicture = await user.DownloadAvatarAsync(Services.GetRequiredService<HttpClient>());
+                //string path = PointsProfileOLD.CreatePlayerProfile(user);
+                //try
+                //{
+                //    await Context.Channel.SendFileAsync(path);
+                //}
+                //catch (Exception)
+                //{
+                //    await Context.Channel.SendMessageAsync(embed: EmbedUtils.CreatePointsProfileEmbed(user));
+                //}
                 try
                 {
-                    await Context.Channel.SendFileAsync(path);
+                    await Context.Channel.SendFileAsync(await PointsProfile.CreateProfileImage(user, profilePicture));
                 }
-                catch (Exception)
+                catch
                 {
                     await Context.Channel.SendMessageAsync(embed: EmbedUtils.CreatePointsProfileEmbed(user));
                 }

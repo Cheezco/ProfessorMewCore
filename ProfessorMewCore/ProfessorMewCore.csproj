@@ -41,6 +41,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MySql.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta11" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" PrivateAssets="all" />
   </ItemGroup>
@@ -52,6 +54,9 @@
   <ItemGroup>
     <Reference Include="CryptoRNGCore">
       <HintPath>..\..\CryptoRNGCore\CryptoRNGCore\bin\Release\net5.0\CryptoRNGCore.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageCreator">
+      <HintPath>..\..\ImageCreator\ImageCreator\bin\Release\net5.0\ImageCreator.dll</HintPath>
     </Reference>
     <Reference Include="Paging">
       <HintPath>..\..\Paging\Paging\bin\Release\net5.0\Paging.dll</HintPath>
