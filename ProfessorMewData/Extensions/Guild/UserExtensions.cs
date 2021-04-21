@@ -8,7 +8,7 @@ namespace ProfessorMewData.Extensions.Guild
 {
     public static class UserExtensions
     {
-        private const string _defaultAvatarUrl = @"https://cdn.discordapp.com/avatars/345219128745000971/0ad6c46bfc2805c3e9e45f270e7bf303.png?size=128";
+        private const string _defaultAvatarUrl = @"https://cdn.discordapp.com/avatars/345219128745000971/0ad6c46bfc2805c3e9e45f270e7bf303.png?size=512";
         public static void AddPoints(this IUser user, int points, bool addToMonthly)
         {
             points = Math.Abs(points);
@@ -66,7 +66,7 @@ namespace ProfessorMewData.Extensions.Guild
                 return _defaultAvatarUrl;
             }
 
-            var imageUrl = discordUser.GetAvatarUrl();
+            var imageUrl = discordUser.GetAvatarUrl(size: 512);
 
             return string.IsNullOrEmpty(imageUrl) ? _defaultAvatarUrl : imageUrl;
         }
