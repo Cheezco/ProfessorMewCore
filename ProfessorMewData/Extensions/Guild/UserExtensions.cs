@@ -3,6 +3,9 @@ using Discord.WebSocket;
 using ProfessorMewData.Interfaces.Guild;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace ProfessorMewData.Extensions.Guild
 {
@@ -69,6 +72,10 @@ namespace ProfessorMewData.Extensions.Guild
             var imageUrl = discordUser.GetAvatarUrl(size: 512);
 
             return string.IsNullOrEmpty(imageUrl) ? _defaultAvatarUrl : imageUrl;
+        }
+        public static async Task<Stream> DownloadAvatarAsync(this IUser user, HttpClient client)
+        {
+            return await client.GetStreamAsync(user.AvatarUrl);
         }
         public static bool RankChanged(this IUser user)
         {
