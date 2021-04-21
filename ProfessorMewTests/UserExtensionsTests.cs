@@ -187,7 +187,7 @@ namespace ProfessorMewTests
             };
             user.ReducePoints(10, true);
 
-            user.TotalPoints.Should().Be(int.MinValue + 1);
+            user.TotalPoints.Should().Be(int.MinValue);
             user.MonthPoints.Should().Be(-1);
         }
         [Fact]
@@ -213,7 +213,7 @@ namespace ProfessorMewTests
             };
             user.ReducePoints(10, false);
 
-            user.TotalPoints.Should().Be(int.MinValue + 1);
+            user.TotalPoints.Should().Be(int.MinValue);
             user.MonthPoints.Should().Be(9);
         }
         [Fact]
