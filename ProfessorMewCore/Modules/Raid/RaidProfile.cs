@@ -27,7 +27,17 @@ namespace ProfessorMewCore.Modules.Raid
         {
             await PrepareHtml(user, profilePicLocation);
 
-            var process = Process.Start("Data/wkhtmltoimage.exe", $"{_assetPath}RaidProfile/{user.DBDiscordID}.html {_tempPath}{user.DBDiscordID}_image.jpg");
+            //var process = Process.Start("Data/wkhtmltoimage.exe", $"{_assetPath}RaidProfile/{user.DBDiscordID}.html {_tempPath}{user.DBDiscordID}_image.jpg");
+            //await process.WaitForExitAsync();
+
+            var process = new Process();
+            process.StartInfo.FileName = $"Data/wkhtmltoimage.exe";
+            process.StartInfo.Arguments = $"{_assetPath}RaidProfile/{user.DBDiscordID}.html {_tempPath}{user.DBDiscordID}_image.jpg";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.OutputDataReceived += (s, e) => { };
+            process.Start();
+            process.BeginOutputReadLine();
             await process.WaitForExitAsync();
 
             File.Delete($"{_assetPath}RaidProfile/{user.DBDiscordID}.html");
