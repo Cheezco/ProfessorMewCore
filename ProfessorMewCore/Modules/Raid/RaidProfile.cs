@@ -25,7 +25,7 @@ namespace ProfessorMewCore.Modules.Raid
 
         public static async Task<string> CreateRaidProfileImageAsync(IRaidUser user, string profilePicLocation)
         {
-            await PrepareHtml(user, profilePicLocation);
+            await PrepareHtmlAsync(user, profilePicLocation);
 
             //var process = Process.Start("Data/wkhtmltoimage.exe", $"{_assetPath}RaidProfile/{user.DBDiscordID}.html {_tempPath}{user.DBDiscordID}_image.jpg");
             //await process.WaitForExitAsync();
@@ -45,7 +45,7 @@ namespace ProfessorMewCore.Modules.Raid
             return $"{_tempPath}{user.DBDiscordID}_image.jpg";
         }
         
-        public static async Task PrepareHtml(IRaidUser user, string profilePicLocation)
+        public static async Task PrepareHtmlAsync(IRaidUser user, string profilePicLocation)
         {
             var doc = new HtmlDocument();
             doc.LoadHtml(await File.ReadAllTextAsync($"{_assetPath}RaidProfile/RaidProfile.html"));
