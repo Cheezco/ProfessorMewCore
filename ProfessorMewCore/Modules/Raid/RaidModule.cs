@@ -17,17 +17,79 @@ using System.Threading.Tasks;
 using Paging;
 using ProfessorMewData.Interfaces.Raid;
 using Discord.Addons.Interactive;
+using ProfessorMewData.Extensions.Guild;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace ProfessorMewCore.Modules.Raid
 {
+
     [Group("DPS")]
     public class RaidModule : InteractiveBase
     {
+        public IServiceProvider Services { get; set; }
+
+
+        [Priority(0)]
+        [Command(RunMode = RunMode.Async)]
+        [LimitChannel]
+        [RequireContext(ContextType.Guild)]
+        public async Task GetPlayerDPSProfileAsync()
+        {
+            using(var raidContext = new RaidContext())
+            using(var guildContext = new GuildContext())
+            {
+                await raidContext.Database.EnsureCreatedAsync();
+                await guildContext.Database.EnsureCreatedAsync();
+
+                var user = await raidContext.Users
+                    .Include(x => x.Records)
+                    .SingleOrDefaultAsync(x => x.DBDiscordID == Context.User.Id.ToString() && x.Guild.DBDiscordID == Context.Guild.Id.ToString());
+
+                var guildUser = await guildContext.Users
+                    .AsQueryable()
+                    .SingleOrDefaultAsync(x => x.DBDiscordID == Context.User.Id.ToString() && x.Guild.DBDiscordID == Context.Guild.Id.ToString());
+
+                if (user is null || guildUser is null)
+                {
+                    await ReplyAsync(embed: EmbedUtils.CreatePlayerNotFoundEmbed());
+                    return;
+                }
+
+                var benches = raidContext.RaidBenches
+                    .AsQueryable()
+                    .Where(x => x.Guild.DBDiscordID == Context.Guild.Id.ToString())
+                    .AsAsyncEnumerable();
+                await user.Records.UpdateRecordStatusesAsync(benches);
+
+                guildUser.AvatarUrl = guildUser.GetAvatarUrl(Context);
+                user.AccountName = guildUser.GetName(Context);
+                
+                var profilePic = await guildUser.DownloadAvatarAsync(Services.GetRequiredService<HttpClient>());
+                System.Drawing.Image.FromStream(profilePic).Save($"{AppDomain.CurrentDomain.BaseDirectory}Data/Temp/{user.DBDiscordID}.jpg");
+
+                try
+                {
+                    string imgPath = await RaidProfile.CreateRaidProfileImageAsync(user, $"{AppDomain.CurrentDomain.BaseDirectory}Data/Temp/{user.DBDiscordID}.jpg");
+                    await Context.Channel.SendFileAsync(imgPath);
+
+                    System.IO.File.Delete(imgPath);
+                }
+                catch
+                {
+                    var paging = new Pager<IRaidRecord>(user.Records.ToList(), 5);
+                    var records = paging.GetPage(0).ToList();
+                    await records.UpdateRecordStatusesAsync(benches);
+                    await Context.Channel.SendMessageAsync(embed: EmbedUtils.CreateDPSProfileEmbed(records, 1, paging.PageCount));
+                }
+            }
+        }
+
         [Priority(1)]
         [Command]
         [LimitChannel]
         [RequireContext(ContextType.Guild)]
-        public async Task GetPlayerDPSProfileAsync(int pageIndex = 1)
+        public async Task GetPlayerDPSProfileAsync(int pageIndex)
         {
             using(var context = new RaidContext())
             {
