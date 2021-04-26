@@ -75,8 +75,9 @@ namespace ProfessorMewCore.Modules.Raid
 
                     System.IO.File.Delete(imgPath);
                 }
-                catch
+                catch(Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                     var paging = new Pager<IRaidRecord>(user.Records.ToList(), 5);
                     var records = paging.GetPage(0).ToList();
                     await records.UpdateRecordStatusesAsync(benches);

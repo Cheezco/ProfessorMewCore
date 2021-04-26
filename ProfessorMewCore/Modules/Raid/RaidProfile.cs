@@ -25,20 +25,37 @@ namespace ProfessorMewCore.Modules.Raid
 
         public static async Task<string> CreateRaidProfileImageAsync(IRaidUser user, string profilePicLocation)
         {
+
+            //
+            // This is super messy and I'll try to clean it up once I regain my sanity
+            //
+
             await PrepareHtmlAsync(user, profilePicLocation);
 
-            //var process = Process.Start("Data/wkhtmltoimage.exe", $"{_assetPath}RaidProfile/{user.DBDiscordID}.html {_tempPath}{user.DBDiscordID}_image.jpg");
-            //await process.WaitForExitAsync();
-
             var process = new Process();
-            process.StartInfo.FileName = $"Data/wkhtmltoimage.exe";
-            process.StartInfo.Arguments = $"{_assetPath}RaidProfile/{user.DBDiscordID}.html {_tempPath}{user.DBDiscordID}_image.jpg";
+            if (OperatingSystem.IsWindows())
+            {
+                process.StartInfo.FileName = $"Data/wkhtmltoimage.exe";
+                process.StartInfo.Arguments = $"{_assetPath}RaidProfile/{user.DiscordID}.html {_tempPath}{user.DiscordID}_image.jpg";
+            }
+            if (OperatingSystem.IsLinux())
+            {
+                process.StartInfo.FileName = "RunScriptTest";
+                process.StartInfo.Arguments = $"{_assetPath}RaidProfile/{user.DiscordID}.html {_tempPath}{user.DiscordID}_image.jpg";
+            }
+            process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
-            process.OutputDataReceived += (s, e) => { };
+            process.OutputDataReceived += (s, e) => { Console.WriteLine("Received: " + e.Data); };
             process.Start();
             process.BeginOutputReadLine();
-            await process.WaitForExitAsync();
+
+            for(int i = 0; i < 5; i++)
+            {
+                Task.Delay(600).Wait();
+                if (File.Exists($"{_tempPath}{user.DiscordID}_image.jpg")
+                    && new FileInfo($"{_tempPath}{user.DiscordID}_image.jpg").Length > 100) break;
+            }
 
             File.Delete($"{_assetPath}RaidProfile/{user.DBDiscordID}.html");
             File.Delete($"{_tempPath}{user.DBDiscordID}.jpg");
@@ -92,7 +109,7 @@ namespace ProfessorMewCore.Modules.Raid
                 element.SetAttributeValue("class", "icon");
             }
 
-            using(var writer = File.Create($"{_assetPath}RaidProfile/{user.DBDiscordID}.html"))
+            using(var writer = File.CreateText($"{_assetPath}RaidProfile/{user.DBDiscordID}.html"))
             {
                 doc.Save(writer);
             }
