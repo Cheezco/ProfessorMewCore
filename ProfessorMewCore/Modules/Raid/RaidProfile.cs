@@ -1,20 +1,10 @@
-﻿using ImageCreator;
-using ProfessorMewData.Interfaces.Raid;
+﻿using ProfessorMewData.Interfaces.Raid;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.Drawing;
 using HtmlAgilityPack;
 using ProfessorMewData.Enums.Raid;
-using System.Diagnostics;
+using Svg.Skia;
 
 namespace ProfessorMewCore.Modules.Raid
 {
@@ -23,53 +13,33 @@ namespace ProfessorMewCore.Modules.Raid
         private static readonly string _assetPath = $"{AppDomain.CurrentDomain.BaseDirectory}Data/Assets/";
         private static readonly string _tempPath = $"{AppDomain.CurrentDomain.BaseDirectory}Data/Temp/";
 
-        public static async Task<string> CreateRaidProfileImageAsync(IRaidUser user, string profilePicLocation)
+        public static async Task<string> CreateRaidProfileImageAsync(IRaidUser user, string profilePicPath)
         {
+            await PrepareSvgAsync(user, profilePicPath);
 
-            //
-            // This is super messy and I'll try to clean it up once I regain my sanity
-            //
-
-            await PrepareHtmlAsync(user, profilePicLocation);
-
-            var process = new Process();
-            if (OperatingSystem.IsWindows())
+            using(var svg = new SKSvg())
             {
-                process.StartInfo.FileName = $"Data/wkhtmltoimage.exe";
-                process.StartInfo.Arguments = $"{_assetPath}RaidProfile/{user.DiscordID}.html {_tempPath}{user.DiscordID}_image.jpg";
-            }
-            if (OperatingSystem.IsLinux())
-            {
-                process.StartInfo.FileName = "RunScriptTest";
-                process.StartInfo.Arguments = $"{_assetPath}RaidProfile/{user.DiscordID}.html {_tempPath}{user.DiscordID}_image.jpg";
-            }
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.OutputDataReceived += (s, e) => { Console.WriteLine("Received: " + e.Data); };
-            process.Start();
-            process.BeginOutputReadLine();
-
-            for(int i = 0; i < 5; i++)
-            {
-                Task.Delay(600).Wait();
-                if (File.Exists($"{_tempPath}{user.DiscordID}_image.jpg")
-                    && new FileInfo($"{_tempPath}{user.DiscordID}_image.jpg").Length > 100) break;
+                svg.Load($"{_assetPath}RaidProfile/{user.DiscordID}.svg");
+                using (var stream = File.OpenWrite($"{_tempPath}{user.DBDiscordID}_image.jpeg"))
+                {
+                    svg.Picture.ToImage(stream, SkiaSharp.SKColor.Empty, SkiaSharp.SKEncodedImageFormat.Jpeg, 75, 1f, 1f, SkiaSharp.SKImageInfo.PlatformColorType, SkiaSharp.SKAlphaType.Unpremul, SkiaSharp.SKColorSpace.CreateRgb(SkiaSharp.SKColorSpaceTransferFn.Srgb, SkiaSharp.SKColorSpaceXyz.Srgb));
+                }
             }
 
-            File.Delete($"{_assetPath}RaidProfile/{user.DBDiscordID}.html");
+            File.Delete($"{_assetPath}RaidProfile/{user.DBDiscordID}.svg");
             File.Delete($"{_tempPath}{user.DBDiscordID}.jpg");
-            return $"{_tempPath}{user.DBDiscordID}_image.jpg";
+
+            return $"{_tempPath}{user.DBDiscordID}_image.jpeg";
         }
         
-        public static async Task PrepareHtmlAsync(IRaidUser user, string profilePicLocation)
+        public static async Task PrepareSvgAsync(IRaidUser user, string profilePicPath)
         {
             var doc = new HtmlDocument();
-            doc.LoadHtml(await File.ReadAllTextAsync($"{_assetPath}RaidProfile/RaidProfile.html"));
-            doc.GetElementbyId("Username").InnerHtml = user.AccountName;
-            doc.GetElementbyId("profileImage").SetAttributeValue("src", profilePicLocation);
+            doc.LoadHtml(await File.ReadAllTextAsync($"{_assetPath}RaidProfile/RaidProfile.svg"));
+            doc.GetElementbyId("Name").InnerHtml = user.AccountName;
+            doc.GetElementbyId("testingProfileImage").SetAttributeValue("href", profilePicPath);
 
-            foreach(var record in user.Records)
+            foreach (var record in user.Records)
             {
                 string elementId = string.Empty;
 
@@ -86,14 +56,14 @@ namespace ProfessorMewCore.Modules.Raid
                          Role.Power or
                          Role.Bannerslave:
                         elementId = "DPS_";
-                         break;
+                        break;
                     default:
                         break;
                 }
 
                 if (string.IsNullOrEmpty(elementId) || record.Status != BenchStatus.Passed) continue;
 
-                if(record.Specialization == Specialization.Base)
+                if (record.Specialization == Specialization.Base)
                 {
                     elementId += Enum.GetName(typeof(Class), record.Class);
                 }
@@ -106,13 +76,20 @@ namespace ProfessorMewCore.Modules.Raid
 
                 if (element is null) continue;
 
-                element.SetAttributeValue("class", "icon");
+                element.SetAttributeValue("class", "cls-12");
             }
 
-            using(var writer = File.CreateText($"{_assetPath}RaidProfile/{user.DBDiscordID}.html"))
+            string path = $"{_assetPath}RaidProfile/{user.DBDiscordID}.svg";
+
+            using (var writer = File.CreateText(path))
             {
                 doc.Save(writer);
             }
+
+            string fixedFile = File.ReadAllText(path)
+                .Replace("preserveaspectratio", "preserveAspectRatio")
+                .Replace("viewbox", "viewBox");
+            File.WriteAllText(path, fixedFile);
         }
     }
 }
